@@ -1,13 +1,12 @@
 play:-
-    initial_state(2, _).
+    initial_state(0, _).
 /*
 GameState:
 Player-Board
 
 user writes line X, column Y
 board represented horizontally
-Board N = 5
-N = 5
+Board N = 0
 [
     [-1, -1, -1, -1, 0, 0, -1, -1, -1, -1],
     [-1, r-1, 0, r-1, 0, 0, 0, g-1, 0, g-1, -1],
@@ -18,9 +17,6 @@ N = 5
     [-1, -1, -1, -1, 0, 0, -1, -1, -1, -1]
 ]
 */
-% % build_character_matrix(P-Board, CharacterMatrix)
-% build_cell(Matrix, Value, Row, Column):-
-
 
 :- use_module(library(lists)).
 
@@ -38,16 +34,6 @@ transform(square, 4).
 transform(pentagon, 5).
 transform(red, r).
 transform(green, g).
-
-% % change_value_at_index(+OldLine, +Index, +Element, -NewLine)
-% change_value_at_index(OldLine, Index, Element, NewLine):-
-%     Index >= 0,
-%     change_value_at_index_aux(OldLine, Index, Element, NewLine).
-% change_value_at_index_aux([_ | T], 0, Element, [Element | T]):-!.
-% change_value_at_index_aux([OldValue | T], Index, Element, [OldValue | RestLine]):-
-%     NewIndex is Index - 1,
-%     change_value_at_index_aux(T, NewIndex, Element, RestLine).
-
 
 % get_pieces(+LineNr, +Colo, -Pieces)
 % switch case with default value empty list
