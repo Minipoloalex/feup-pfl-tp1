@@ -1,6 +1,10 @@
 :- ensure_loaded(library(lists)).
 board([[-1, -1, -1, -1, 0, 0, -1, -1, -1, -1],[-1, r-1, 0, r-1, 0, 0, 0, g-1, 0, g-1, -1],[0, r-4, r-3, 0, 0, 0, 0, g-3, g-4, 0],[r-1, r-3, r-5, r-4, r-1, 0, g-1, g-4, g-5, g-3, g-1],[0, r-4, r-3, 0, 0, 0, 0, g-3, g-4, 0],[-1, r-1, 0, r-1, 0, 0, 0, g-1, 0, g-1, -1],[-1, -1, -1, -1, 0, 0, -1, -1, -1, -1]]).
 
+% print_n(+N, +String)
+print_n(N, String):-
+    for(_, 1, N), param(String) do write(String).
+
 % print_empty_hexagons(+Number)
 print_empty_hexagons(LineNr, Number):-
     1 is LineNr mod 2,  % if odd line, add 2 spaces at the beginning
@@ -10,7 +14,7 @@ print_empty_hexagons(LineNr, Number):-
 print_empty_hexagons(_, Number):-
     print_empty_hexagons(Number).
 print_empty_hexagons(Number):-
-    for(_, 1, Number) do write('    ').
+    print_n(Number, '    ').
 
 
 existent(Line, Index, Offset):-
