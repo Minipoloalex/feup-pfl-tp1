@@ -61,7 +61,7 @@ write_separators_line(LineSize, LineNr, InitialIndex, AuxLine, FirstCorner, Last
     nl.
 
 % write_board(+Board)
-write_board(Board) :-
+display_game(Board) :-
     write_board_upper_part(1, [ [] | Board ]).
 
 write_board_upper_part(LineNr, [AuxLine, Line | OtherLines]) :-
@@ -184,4 +184,4 @@ translate(g-5, X) :- char_code(X, 11039).
 
 test:-
     board(_B),
-    write_board(_B).
+    display_game(_B).

@@ -1,11 +1,10 @@
 :- ensure_loaded(library(lists)).
 
 % hardcoded board to test things
-board([[-1, -1, -1, -1, 0, 0, -1, -1, -1, -1],[-1, r-1, 0, r-1, 0, 0, 0, g-1, 0, g-1, -1],[0, r-4, r-3, 0, 0, 0, 0, g-3, g-4, 0],[r-1, r-3, r-5, r-4, r-1, 0, g-1, g-4, g-5, g-3, g-1],[0, r-4, r-3, 0, 0, 0, 0, g-3, g-4, 0],[-1, r-1, 0, r-1, 0, 0, 0, g-1, 0, g-1, -1],[-1, -1, -1, -1, 0, 0, -1, -1, -1, -1]]).
+% board([[-1, -1, -1, -1, 0, 0, -1, -1, -1, -1],[-1, r-1, 0, r-1, 0, 0, 0, g-1, 0, g-1, -1],[0, r-4, r-3, 0, 0, 0, 0, g-3, g-4, 0],[r-1, r-3, r-5, r-4, r-1, 0, g-1, g-4, g-5, g-3, g-1],[0, r-4, r-3, 0, 0, 0, 0, g-3, g-4, 0],[-1, r-1, 0, r-1, 0, 0, 0, g-1, 0, g-1, -1],[-1, -1, -1, -1, 0, 0, -1, -1, -1, -1]]).
 
 % valid_moves(+Board, +Player, -ListOfMoves)
 valid_moves(Board, Player, ListOfMoves):-
-    % findall((X, Y, Piece), valid_piece(Board, X, Y, Player-Piece), ListOfPieces),
     findall((Xi,Yi,Xf,Yf), (
         valid_piece(Board, Xi, Yi, Player-Piece),
         get_valid_moves_bfs((Xi,Yi), Piece, Player-Board, Moves),
