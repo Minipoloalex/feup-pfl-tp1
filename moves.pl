@@ -81,8 +81,8 @@ get_adjacent(_, _, _, [], _, []).
 get_adjacent(Xi, Yi, Player-Piece, [(XDiff, YDiff) | Rest], Board, [(Xf, Yf) | RecursiveResult]):-
     Xf is Xi + XDiff,
     Yf is Yi + YDiff,
-    valid_position(Board, Xf, Yf, Value),
-    get_resulting_piece(Player-Piece, Value, _),
+    valid_position(Board, Xf, Yf, _),
+    % get_resulting_piece(Player-Piece, Value, _),  % TODO: see if this works
     !,
     get_adjacent(Xi, Yi, Player-Piece, Rest, Board, RecursiveResult).
 get_adjacent(Xi, Yi, Player-Piece, [(_, _) | Rest], Board, RecursiveResult):-
@@ -95,6 +95,30 @@ associate_distance_to_move([], _, []).
 associate_distance_to_move([(X, Y) | T], Dist, [(X, Y, Dist) | R]):-
     associate_distance_to_move(T, Dist, R).
 
+
+% filter_possible_moves(+AttackerPiece, +Moves, +Board, -PossibleMoves)
+% returns the possible moves. These are moves that end up in empty spaces or in valid enemy pieces considering the attacker piece
+filter_possible_moves(_, [], _, []).
+filter_possible_moves(Player-Piece, [(X, Y) | T], Board, [(X, Y) | PossibleMoves]):-
+    get_value(Board, X, Y, Value),
+    get_resulting_piece(Player-Piece, Value, _),
+    !,
+    filter_possible_moves(Player-Piece, T, Board, PossibleMoves).
+
+filter_possible_moves(Player-Piece, [(_, _) | T], Board, PossibleMoves):-
+    filter_possible_moves(Player-Piece, T, Board, PossibleMoves).
+
+% This filters the moves that end up on enemy squares
+% This is used to ensure that a square cannot jump over an enemy square
+filter_all_except_enemy_squares(_, [], _, []).
+filter_all_except_enemy_squares(Player-Piece, [(X, Y) | T], Board, ResultMoves):-
+    other_player(Player, Other),
+    get_value(Board, X, Y, Other-Piece),    % if move to enemy square then do not add to result
+    !,
+    filter_all_except_enemy_squares(Player-Piece, T, Board, ResultMoves).
+filter_all_except_enemy_squares(Player-Piece, [(X, Y) | T], Board, [(X, Y) | ResultMoves]):-
+    filter_all_except_enemy_squares(Player-Piece, T, Board, ResultMoves).
+
 % filter_empty(+Moves, +Board, -MovesToEmptySpace)
 % returns the moves that end up in empty spaces (useful for the bfs)
 filter_empty([], _, []).
@@ -106,27 +130,64 @@ filter_empty([_ | T], Board, Result):-
     % not an empty space, so ignore it
     filter_empty(T, Board, Result).
 
+% if piece is square (4), then can jump over other pieces -> different bfs
+get_valid_moves_bfs((Xi, Yi), 4, Player-Board, ListMoves):-
+    !,
+    % if is golden square, MaxMoves is Piece + 1, else MaxMoves is Piece
+    get_valid_moves_bfs_square(4, 4, Player-Board, [(Xi, Yi, 0)], [(Xi,Yi)], ListMoves).
 get_valid_moves_bfs((Xi, Yi), Piece, Player-Board, ListMoves):-
-    get_valid_moves_bfs(Piece, Player-Board, [(Xi, Yi, 0)], [(Xi,Yi)], ListMoves).
+    % if is golden square, MaxMoves is Piece + 1, else MaxMoves is Piece
+    get_valid_moves_bfs(Piece, Piece, Player-Board, [(Xi, Yi, 0)], [(Xi,Yi)], ListMoves).
 
-get_valid_moves_bfs(_, _, [], _, []).
-get_valid_moves_bfs(MaxMoves, _, [(_,_,MaxMoves) | _], _, []):-!. % q.front()'s distance has reached max, so stop
+get_valid_moves_bfs(_, _, _, [], _, []).
+get_valid_moves_bfs(MaxMoves, _, _, [(_,_,MaxMoves) | _], _, []):-!. % q.front()'s distance has reached max, so stop
 
-get_valid_moves_bfs(MaxMoves, Player-Board, [(X,Y,Dist) | RestQueue], Visited, ListMoves):-
+get_valid_moves_bfs(MaxMoves, Piece, Player-Board, [(X,Y,Dist) | RestQueue], Visited, ListMoves):-
     Dist < MaxMoves,
     NewDist is Dist + 1,
-    get_adjacent(X, Y, Player-MaxMoves, Board, Moves),
-    % trace,
+    get_adjacent(X, Y, Player-MaxMoves, Board, ToFilterMoves),  % includes moves to pieces that we cannot attack
+    % filters moves: only to empty spaces or to pieces that we can attack
+    filter_possible_moves(Player-Piece, ToFilterMoves, Board, Moves),
+
     subtract(Moves, Visited, MovesNotVisited),  % remove visited positions
-    
+
     filter_empty(MovesNotVisited, Board, MovesToEmptySpace),   % get moves to empty spaces
-    associate_distance_to_move(MovesToEmptySpace, NewDist, MovesToEmptyWithDist),  % X-Y to X-Y-NewDist
     
+    associate_distance_to_move(MovesToEmptySpace, NewDist, MovesToEmptyWithDist),  % X-Y to X-Y-NewDist
+
     append(MovesNotVisited, RestMoves, ListMoves),    % RestMoves is the recursive result
     append(MovesNotVisited, Visited, NewVisited),
     append(RestQueue, MovesToEmptyWithDist, NewQueue),
 
-    get_valid_moves_bfs(MaxMoves, Player-Board, NewQueue, NewVisited, RestMoves).
+    get_valid_moves_bfs(MaxMoves, Piece, Player-Board, NewQueue, NewVisited, RestMoves).
+
+
+get_valid_moves_bfs_square(_, _, _, [], _, []).
+get_valid_moves_bfs_square(MaxMoves, _, _, [(_,_,MaxMoves) | _], _, []):-!. % q.front()'s distance has reached max, so stop
+
+get_valid_moves_bfs_square(MaxMoves, Piece, Player-Board, [(X,Y,Dist) | RestQueue], Visited, ListMoves):-
+    % We know piece is the square (4)
+    % The square can jump over pieces
+    Dist < MaxMoves,
+    NewDist is Dist + 1,
+    % includes moves to pieces that we cannot attack
+    get_adjacent(X, Y, Player-MaxMoves, Board, Moves),
+
+    subtract(Moves, Visited, MovesNotVisited),  % remove visited positions
+
+    % cannot jump over enemy square
+    filter_all_except_enemy_squares(Player-Piece, MovesNotVisited, Board, MovesForQueue),
+
+    % filters moves: only to empty spaces or to pieces that we can attack
+    filter_possible_moves(Player-Piece, MovesNotVisited, Board, PossibleMoves),
+
+    associate_distance_to_move(MovesForQueue, NewDist, MovesWithDist),  % X-Y to X-Y-NewDist
+    
+    append(PossibleMoves, RestMoves, ListMoves),    % RestMoves is the recursive result
+    append(MovesNotVisited, Visited, NewVisited),
+    append(RestQueue, MovesWithDist, NewQueue),
+
+    get_valid_moves_bfs_square(MaxMoves, Piece, Player-Board, NewQueue, NewVisited, RestMoves).
 
 
 % Function to replace a value in a matrix at row X and column Y
