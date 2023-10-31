@@ -82,7 +82,6 @@ get_adjacent(Xi, Yi, Player-Piece, [(XDiff, YDiff) | Rest], Board, [(Xf, Yf) | R
     Xf is Xi + XDiff,
     Yf is Yi + YDiff,
     valid_position(Board, Xf, Yf, _),
-    % get_resulting_piece(Player-Piece, Value, _),  % TODO: see if this works
     !,
     get_adjacent(Xi, Yi, Player-Piece, Rest, Board, RecursiveResult).
 get_adjacent(Xi, Yi, Player-Piece, [(_, _) | Rest], Board, RecursiveResult):-
