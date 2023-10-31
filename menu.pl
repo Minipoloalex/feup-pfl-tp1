@@ -1,5 +1,6 @@
 :-ensure_loaded('display.pl').
 :-ensure_loaded('moves.pl').
+:-ensure_loaded('menu_helpers.pl').
 
 play:-
     repeat,

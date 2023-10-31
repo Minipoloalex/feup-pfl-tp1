@@ -78,6 +78,7 @@ select_option(Min, Max, Option):-
     Option >= Min, Option =< Max,
     !.
 select_option(Min, Max, Option):-
+    % might need skip_line here (TODO: check this)
     write('Invalid option! Try again.'), nl,
     select_option(Min, Max, Option).
 

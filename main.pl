@@ -1,5 +1,3 @@
-play:-
-    initial_state(0, _).
 /*
 GameState:
 Player-Board
@@ -66,7 +64,7 @@ get_pieces(_, _, []).
 change_player(red, green).
 change_player(green, red).
 
-get_line(LineNr, PaddingSize, MiddleSize, FinalLine):-
+get_line(LineNr, PaddingSize, MiddleSize, Line):-
     transform(red, R),
     transform(green, G),
     transform(empty, E),
@@ -74,16 +72,21 @@ get_line(LineNr, PaddingSize, MiddleSize, FinalLine):-
     get_pieces(LineNr, G, AuxGreenPieces),
     reverse(AuxGreenPieces, GreenPieces),
     
+    minus_ones_each_side(LineNr, PaddingSize, NumberMinusOnes),
+    replicate(NumberMinusOnes, E, MinusOnes),
+
     replicate(PaddingSize, E, Padding),
     replicate(MiddleSize, E, Middle),
     % Order in the board is:
     % Padding, RedPieces, Padding, Middle, Padding, GreenPieces, Padding
-    append(GreenPieces, Padding, End1),
-    append(Padding, End1, End2),
-    append(Middle, End2, End3),
-    append(Padding, End3, End4),
-    append(RedPieces, End4, End5),
-    append(Padding, End5, FinalLine).
+    append(Padding, MinusOnes, End1),
+    append(GreenPieces, End1, End2),
+    append(Padding, End2, End3),
+    append(Middle, End3, End4),
+    append(Padding, End4, End5),
+    append(RedPieces, End5, End6),
+    append(Padding, End6, End7),
+    append(MinusOnes, End7, Line).
 
 % get_lines(+PaddingSize, -Lines)
 get_lines(PaddingSize, [[0,0] | Lines]):-
@@ -97,8 +100,20 @@ get_lines(LineNr, PaddingSize, [Line | RecRes]):-
     get_lines(NextLineNr, PaddingSize, RecRes).
 
 
-%% initial_state(+Size, -GameState)
+% initial_state(+Size, -GameState)
 initial_state(PaddingSize, GameState):-
     PaddingSize >= 0,
     get_lines(PaddingSize, GameState),
     write(GameState), nl.
+
+% minus_ones_each_side(+LineNr, +PaddingSize, -NumberMinusOnes)
+% Gets the number of minus ones a line has on each side
+minus_ones_each_side(1, PS, N):-
+    N is PS * 2 + 4.
+minus_ones_each_side(2, _, 1).
+minus_ones_each_side(3, _, 0).
+minus_ones_each_side(4, _, 0).
+minus_ones_each_side(5, _, 0).
+minus_ones_each_side(6, _, 1).
+minus_ones_each_side(7, PS, N):-
+    N is PS * 2 + 4.
