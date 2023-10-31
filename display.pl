@@ -1,6 +1,16 @@
 :- ensure_loaded(library(lists)).
 board([[-1, -1, -1, -1, 0, 0, -1, -1, -1, -1],[-1, r-1, 0, r-1, 0, 0, 0, g-1, 0, g-1, -1],[0, r-4, r-3, 0, 0, 0, 0, g-3, g-4, 0],[r-1, r-3, r-5, r-4, r-1, 0, g-1, g-4, g-5, g-3, g-1],[0, r-4, r-3, 0, 0, 0, 0, g-3, g-4, 0],[-1, r-1, 0, r-1, 0, 0, 0, g-1, 0, g-1, -1],[-1, -1, -1, -1, 0, 0, -1, -1, -1, -1]]).
 
+% number_of_digits(+N, -Size)
+number_of_digits(N, Size):-
+    N >= 1,
+    number_of_digits(N, Size, 0).
+number_of_digits(0, Size, Size):- !.
+number_of_digits(N, Size, Acc):-
+    NewAcc is Acc + 1,
+    NewN is N // 10,
+    number_of_digits(NewN, Size, NewAcc).
+
 % print_n(+N, +String)
 print_n(N, String):-
     for(_, 1, N), param(String) do write(String).
@@ -64,13 +74,30 @@ write_separators_line(LineSize, LineNr, InitialIndex, AuxLine, FirstCorner, Last
     write(LastCorner),
     nl.
 
-% write_board(+Board)
+% display_game(+Board)
 display_game(Board) :-
-    write_board_upper_part(1, [ [] | Board ]).
+    write_board_upper_part(1, [ [] | Board ]),
+    write_column_numbers(11).
+
+write_column_numbers(Size):-
+    write('    1'),
+    (for(Column, 2, Size) do 
+        number_of_digits(Column, NumberSize),
+        EmptySpaces is 4 - NumberSize,
+        print_n(EmptySpaces, ' '),
+        write(Column)),
+    nl,
+    write('      1'),
+    OddSize is Size - 1,
+    (for(Column, 2, OddSize) do 
+        number_of_digits(Column, NumberSize),
+        EmptySpaces is 4 - NumberSize,
+        print_n(EmptySpaces, ' '),
+        write(Column)),
+    nl.
 
 write_board_upper_part(LineNr, [AuxLine, Line | OtherLines]) :-
     filter_invalid(Line, CleanLine, MinusOneCount),
-    print_empty_hexagons(LineNr, MinusOneCount),
 
     top_right_corner(RightCorner),
     top_left_corner(LeftCorner),
@@ -78,8 +105,11 @@ write_board_upper_part(LineNr, [AuxLine, Line | OtherLines]) :-
     down_corner(DownCorner),
     length(CleanLine, LineSize),
 
+    write('  '),
+    print_empty_hexagons(LineNr, MinusOneCount),
     write_separators_line(LineSize, LineNr, MinusOneCount, AuxLine, LeftCorner, RightCorner, DownCorner, UpCorner),
 
+    write(LineNr), write(' '),
     print_empty_hexagons(LineNr, MinusOneCount),
     write_line(CleanLine),
 
@@ -90,19 +120,19 @@ write_board_upper_part(LineNr, [AuxLine, Line | OtherLines]) :-
 
 write_board_lower_part(LineNr, [LastLine]):-
     filter_invalid(LastLine, CleanLine, MinusOneCount),
-    print_empty_hexagons(LineNr, MinusOneCount),
-    
+
     bot_right_corner(RightCorner),
     bot_left_corner(LeftCorner),
     up_corner(UpCorner),
     down_corner(DownCorner),
     length(CleanLine, LineSize),
-
+    
+    write('  '),
+    print_empty_hexagons(LineNr, MinusOneCount),
     write_separators_line(LineSize, LineNr, MinusOneCount, [], LeftCorner, RightCorner, UpCorner, DownCorner).
 
 write_board_lower_part(LineNr, [Line, AuxLine | OtherLines]):-
     filter_invalid(Line, CleanLine, MinusOneCount),
-    print_empty_hexagons(LineNr, MinusOneCount),
 
     bot_right_corner(RightCorner),
     bot_left_corner(LeftCorner),
@@ -110,11 +140,14 @@ write_board_lower_part(LineNr, [Line, AuxLine | OtherLines]):-
     down_corner(DownCorner),
     length(CleanLine, LineSize),
 
+    write('  '),
+    print_empty_hexagons(LineNr, MinusOneCount),
     write_separators_line(LineSize, LineNr, MinusOneCount, AuxLine, LeftCorner, RightCorner, UpCorner, DownCorner),
 
     NextLineNr is LineNr + 1,
 
     filter_invalid(AuxLine, CleanAuxLine, MinusOneCountAux),
+    write(NextLineNr), write(' '),
     print_empty_hexagons(NextLineNr, MinusOneCountAux),
     write_line(CleanAuxLine),
 
