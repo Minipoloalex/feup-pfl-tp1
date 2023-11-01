@@ -26,7 +26,6 @@ main_menu_option(3):-
     play_game(RedLevel-GreenLevel).
 
 play_game(RedLevel-GreenLevel):-
-    % initial_state(Board),
     select_padding(PaddingSize),
     initial_state(PaddingSize, Board),
     clear_screen,
@@ -45,10 +44,46 @@ choose_move(Board, Player, 0, (Xi, Yi, Xf, Yf)):-   % human
     read_position(Xf, Yf).
 
 % game_cycle(+GameState, +RedLevel-GreenLevel)
+not_in_board(_, []). % base case
 
-% game_cycle(GameState, _):-
-%     game_over(GameState, Winner), !,
-%     congratulate(Winner).
+not_in_board(Piece, [Row | Rest]):-
+    \+ memberchk(Piece, Row),
+    not_in_board(Piece, Rest).
+
+win_by_elimination(Board, g):-
+    not_in_board(r-5, Board).
+
+win_by_elimination(Board, r):-
+    not_in_board(g-5, Board).
+
+win_by_golden(Board, g):-
+    get_value(Board, 2, 6, Color1-_),
+    Color1 = g,
+    get_value(Board, 6, 6, Color2-_),
+    Color2 = g.
+
+win_by_golden(Board, r):-
+    get_value(Board, 2, 6, Color1-_),
+    Color1 = r,
+    get_value(Board, 6, 6, Color2-_),
+    Color2 = r.
+
+game_over(Board, Winner):-
+    win_by_elimination(Board, Winner).
+
+game_over(Board, Winner):-
+    win_by_golden(Board, Winner).
+
+congratulate(r):-
+    write('Red player won!'), nl.
+
+congratulate(g):-
+    write('Green player won!'), nl.
+
+game_cycle(_-Board, _, _):-
+    game_over(Board, Winner), !,
+    congratulate(Winner).
+
 game_cycle(Player-Board, LevelsFromMenu, BoardMaxSize):-
     write('Player '), write(Player), write(' turn.'), nl,
     
