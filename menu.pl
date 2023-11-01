@@ -43,6 +43,11 @@ choose_move(Board, Player, 0, (Xi, Yi, Xf, Yf)):-   % human
     write('Select a position to move to: '), nl,
     read_position(Xf, Yf).
 
+choose_move(Board, Player, 1, (Xi, Yi, Xf, Yf)):-   % computer dumb (random)
+    write('Press enter to make computer move.'), nl,
+    get_char(_),
+    random_move(Board, Player, (Xi, Yi, Xf, Yf)).
+
 % game_cycle(+GameState, +RedLevel-GreenLevel)
 not_in_board(_, []). % base case
 

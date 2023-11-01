@@ -1,4 +1,5 @@
 :- ensure_loaded(library(lists)).
+:- ensure_loaded(library(random)).
 
 % valid_moves(+Board, +Player, -ListOfMoves)
 valid_moves(Board, Player, ListOfMoves):-
@@ -206,3 +207,12 @@ replace_element([_|T], 1, NewValue, [NewValue|T]):- !.
 replace_element([H|T], Col, NewValue, [H|NewT]):-
     NewCol is Col - 1,
     replace_element(T, NewCol, NewValue, NewT).
+
+
+
+
+% random_move(+Board, +Player, -Move)
+% returns a random move for the computer to play
+random_move(Board, Player, (Xi, Yi, Xf, Yf)):-
+    valid_moves(Board, Player, ListOfMoves),
+    random_member((Xi, Yi, Xf, Yf), ListOfMoves).
