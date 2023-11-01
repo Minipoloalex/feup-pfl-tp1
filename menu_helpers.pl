@@ -102,3 +102,9 @@ select_piece(Board-Player, Xi, Yi):-
     read_position(Xi, Yi),
     valid_piece(Board, Xi, Yi, Player-_).
 
+select_padding(PaddingSize):-
+    write('Select a padding size between 0 and 4 or just press Enter to select no padding.'),nl,
+    write('To go back select an invalid padding size.'), nl,
+    read_number(PaddingSize),
+    PaddingSize >= 0, PaddingSize =< 5.
+

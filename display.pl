@@ -74,10 +74,10 @@ write_separators_line(LineSize, LineNr, InitialIndex, AuxLine, FirstCorner, Last
     write(LastCorner),
     nl.
 
-% display_game(+Board)
-display_game(Board) :-
+% display_game(+Board, +MaxSize)
+display_game(Board, MaxSize) :-
     write_board_upper_part(1, [ [] | Board ]),
-    write_column_numbers(11).
+    write_column_numbers(MaxSize).
 
 write_column_numbers(Size):-
     write('    1'),
