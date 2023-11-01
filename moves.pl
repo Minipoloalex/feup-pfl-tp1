@@ -216,3 +216,84 @@ replace_element([H|T], Col, NewValue, [H|NewT]):-
 random_move(Board, Player, (Xi, Yi, Xf, Yf)):-
     valid_moves(Board, Player, ListOfMoves),
     random_member((Xi, Yi, Xf, Yf), ListOfMoves).
+
+
+% smart_move(+Board, +Player, -Move)
+% returns a smart move for the computer to play
+smart_move(Board, Player, (Xi, Yi, Xf, Yf)):-
+    valid_moves(Board, Player, ListOfMoves),
+    get_best_move(Board, Player, ListOfMoves, (Xi, Yi, Xf, Yf)).
+
+% get_best_move(+Board, +Player, +ListOfMoves, -BestMove)
+% returns the best move for the computer to play
+get_best_move(Board, Player, ListOfMoves, BestMove):-
+    evaluate_moves(Board, Player, ListOfMoves, ListOfValues),
+    max_member(MaxValue, ListOfValues),
+    findall((Xi, Yi, Xf, Yf), (
+        nth1(Index, ListOfValues, MaxValue),
+        nth1(Index, ListOfMoves, (Xi, Yi, Xf, Yf))
+    ), ListOfBestMoves),
+    random_member(BestMove, ListOfBestMoves).
+
+% evaluate_moves(+Board, +Player, +ListOfMoves, -ListOfValues)
+% returns the list of values for each move, with the same order as the list of moves
+evaluate_moves(_, _, [], []).
+evaluate_moves(Board, Player, [(Xi, Yi, Xf, Yf) | RestMoves], [Value | RestValues]):-
+    move(Player-Board, (Xi, Yi, Xf, Yf), _-NewBoard),
+    evaluate_board(NewBoard, Player, Value),
+    evaluate_moves(Board, Player, RestMoves, RestValues).
+
+% evaluate_board(+Board, +Player, -Value)
+% returns the value of the board for the player
+evaluate_board(Board, Player, Value):-
+    evaluate_board(Board, Player, 1, 1, 0, Value).
+
+% evaluate_board(+Board, +Player, +Row, +Col, +Value, -FinalValue)
+% returns the value of the board for the player
+% Row and Col are important because central squares are more valuable (especially the golden ones)
+evaluate_board([], _, _, _, Value, Value).
+evaluate_board([Row | Rest], Player, RowIndex, ColIndex, Value, FinalValue):-
+    evaluate_row(Row, Player, RowIndex, ColIndex, RowValue),
+    NewRowIndex is RowIndex + 1,
+    NewValue is Value + RowValue,
+    evaluate_board(Rest, Player, NewRowIndex, ColIndex, NewValue, FinalValue).
+
+% evaluate_row(+Row, +Player, +RowIndex, +ColIndex, -Value)
+% returns the value of the row for the player
+evaluate_row([], _, _, _, 0).
+evaluate_row([Position | Rest], Player, RowIndex, ColIndex, Value):-
+    evaluate_position(Position, Player, RowIndex, ColIndex, PositionValue),
+    NewColIndex is ColIndex + 1,
+    evaluate_row(Rest, Player, RowIndex, NewColIndex, RestValue),
+    Value is PositionValue + RestValue.
+
+% evaluate_position(+Position, +Player, +RowIndex, +ColIndex, -Value)
+% returns the value of the position for the player
+% Position is either a piece (red or green), an empty space (0) or an invalid position (-1)
+evaluate_position(-1, _, _, _, 0):- !.
+evaluate_position(0, _, _, _, 0):- !.
+
+evaluate_position(PosPlayer-PosPiece, Player, RowIndex, ColIndex, Value):-
+    PosPlayer = Player,
+    !,
+    evaluate_piece(PosPiece, RowIndex, ColIndex, Value).
+
+evaluate_position(_-PosPiece, _, RowIndex, ColIndex, Value):- % PosPlayer \= Player
+    % if the piece is not from the player, then its value is negative
+    % this is useful to make the computer want to capture enemy pieces if possible
+    evaluate_piece(PosPiece, RowIndex, ColIndex, PieceValue),
+    Value is -PieceValue.
+
+% evaluate_piece(+Piece, +RowIndex, +ColIndex, -Value)
+% returns the value of a piece placed at a certain position
+evaluate_piece(5, _, _, 1000).      % the pentagon is the most valuable piece, without it the game is lost
+evaluate_piece(_, 2, 6, 200):- !.    % golden square on top
+evaluate_piece(_, 6, 6, 200):- !.    % golden square on bottom
+evaluate_piece(Piece, Row, Col, Value):-
+    % the closer the piece is to the center, the more valuable it is, the center is the square (4, 6)
+    % the distance will be approximated by the manhattan distance
+    % the value of the piece is the inverse of the MD multiplied by the value of the piece itself
+    Dist is abs(Row - 4) + abs(Col - 6),
+    Inverse is 5 - Dist,
+    Value is Inverse * Piece.
+    

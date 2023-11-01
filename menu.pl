@@ -48,6 +48,11 @@ choose_move(Board, Player, 1, (Xi, Yi, Xf, Yf)):-   % computer dumb (random)
     get_char(_),
     random_move(Board, Player, (Xi, Yi, Xf, Yf)).
 
+choose_move(Board, Player, 2, (Xi, Yi, Xf, Yf)):-   % computer smart
+    write('Press enter to make computer move.'), nl,
+    get_char(_),
+    smart_move(Board, Player, (Xi, Yi, Xf, Yf)).
+
 % game_cycle(+GameState, +RedLevel-GreenLevel)
 not_in_board(_, []). % base case
 
