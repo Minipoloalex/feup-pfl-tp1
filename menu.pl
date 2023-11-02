@@ -8,10 +8,10 @@ normal_max_size(11).
 play:-
     repeat,
     print_banner(
-        ["0. Exit", "1. Player vs Player", "2. Player vs Computer", "3. Computer vs Computer"],
+        ["0. Exit", "1. Player vs Player", "2. Player vs Computer", "3. Computer vs Player", "4. Computer vs Computer"],
         "PLAY TACTIGON",
         50),
-    select_option(0, 3, Option),
+    select_option(0, 4, Option),
     main_menu_option(Option).
 
 main_menu_option(0):- !.
@@ -21,6 +21,9 @@ main_menu_option(2):-
     select_level(Level, "2"),
     play_game(0-Level).
 main_menu_option(3):-
+    select_level(Level, "1"),
+    play_game(Level-0).
+main_menu_option(4):-
     select_level(RedLevel, "1"),
     select_level(GreenLevel, "2"),
     play_game(RedLevel-GreenLevel).
