@@ -29,8 +29,6 @@ get_pieces(5, Color, [0, Color-4, Color-3, 0]):-!.
 get_pieces(6, Color, [Color-1, 0, Color-1]):-!.
 get_pieces(_, _, []).
 
-change_player(red, green).
-change_player(green, red).
 
 get_line(LineNr, PaddingSize, Line):-
     (LineNr =:= 1; LineNr =:= 7),   % There are 7 lines

@@ -18,11 +18,11 @@ main_menu_option(0):- !.
 main_menu_option(1):-
     play_game(0-0). % both human
 main_menu_option(2):-
-    select_level(Level, "Green"),
+    select_level(Level, "2"),
     play_game(0-Level).
 main_menu_option(3):-
-    select_level(RedLevel, "Red"),
-    select_level(GreenLevel, "Green"),
+    select_level(RedLevel, "1"),
+    select_level(GreenLevel, "2"),
     play_game(RedLevel-GreenLevel).
 
 play_game(RedLevel-GreenLevel):-
@@ -82,12 +82,12 @@ game_over(Player-Board, Winner):-
     win_by_golden(Player-Board, Winner).
 
 congratulate(r):-
-    write('Red player won!'), nl,
+    write('Player 1 won!'), nl,
     press_enter('Press Enter to continue'),
     !, fail.
 
 congratulate(g):-
-    write('Green player won!'), nl,
+    write('Player 2 won!'), nl,
     press_enter('Press Enter to continue'),
     !, fail.
 
@@ -96,7 +96,8 @@ game_cycle(Player-Board-_, _, _):-
     congratulate(Winner).
 
 game_cycle(Player-Board-AdvRules, LevelsFromMenu, BoardMaxSize):-
-    write('Player '), write(Player), write(' turn.'), nl,
+    player_label(Player, PlayerLabel),
+    write('Player '), write(PlayerLabel), write(' turn.'), nl,
     
     level(Player, LevelsFromMenu, Level),
     choose_move(Board-AdvRules, Player, Level, (Xi, Yi, Xf, Yf)),
@@ -111,3 +112,5 @@ game_cycle(Player-Board-AdvRules, LevelsFromMenu, BoardMaxSize):-
 % Used to identify the level of the given player (0 human, 1 random, 2 greedy/optimal)
 level(r, L-_, L).
 level(g, _-L, L).
+player_label(r, '1').
+player_label(g, '2').

@@ -222,14 +222,12 @@ random_move(Board-AdvRules, Player, (Xi, Yi, Xf, Yf)):-
 % returns a smart move for the computer to play
 smart_move(Board-AdvRules, Player, (Xi, Yi, Xf, Yf)):-
     valid_moves(Board-AdvRules, Player, ListOfMoves),
-    write(ListOfMoves), nl,
     get_best_move(Board-AdvRules, Player, ListOfMoves, (Xi, Yi, Xf, Yf)).
 
 % get_best_move(+Board, +Player, +ListOfMoves, -BestMove)
 % returns the best move for the computer to play
 get_best_move(Board-AdvRules, Player, ListOfMoves, BestMove):-
     evaluate_moves(Board-AdvRules, Player, ListOfMoves, ListOfValues),
-    write(ListOfValues), nl,
     max_member(MaxValue, ListOfValues),
     findall((Xi, Yi, Xf, Yf), (
         nth1(Index, ListOfValues, MaxValue),

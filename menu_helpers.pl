@@ -93,8 +93,8 @@ read_position(X, Y):-
     read_number_prompt('Column: ', 'Invalid column!', Y),
     Y \= 0.
 select_level(Level, ComputerPlayer):-
-    append(ComputerPlayer, " computer player", TitleLastPart),
-    append("Select the level for ", TitleLastPart, Title),
+    append(" player ", ComputerPlayer, TitleLastPart),
+    append("Select the computer level for", TitleLastPart, Title),
     print_banner(["0. Go back", "1. Easy", "2. Hard"], Title, 50),
     select_option(0, 2, Level),
     Level \= 0.
