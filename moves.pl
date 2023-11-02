@@ -45,7 +45,7 @@ valid_piece(Board, X, Y, Player-Piece):-
     nth1(X, Board, Line),
     nth1(Y, Line, Player-Piece).    % if Piece is -1 or 0, then this fails (no player)
 
-% get_value(+Board, +X, +Y, -Value)
+% get_value(+Board, +X, +Y, ?Value)
 get_value(Board, X, Y, Value):-
     nth1(X, Board, Line),
     nth1(Y, Line, Value).
@@ -286,7 +286,7 @@ evaluate_position(_-PosPiece, _, RowIndex, ColIndex, Value):- % PosPlayer \= Pla
 
 % evaluate_piece(+Piece, +RowIndex, +ColIndex, -Value)
 % returns the value of a piece placed at a certain position
-evaluate_piece(5, _, _, 1000).      % the pentagon is the most valuable piece, without it the game is lost
+evaluate_piece(5, _, _, 1000):- !.   % the pentagon is the most valuable piece, without it the game is lost
 evaluate_piece(_, 2, 6, 200):- !.    % golden square on top
 evaluate_piece(_, 6, 6, 200):- !.    % golden square on bottom
 evaluate_piece(Piece, Row, Col, Value):-
@@ -296,4 +296,3 @@ evaluate_piece(Piece, Row, Col, Value):-
     Dist is abs(Row - 4) + abs(Col - 6),
     Inverse is 5 - Dist,
     Value is Inverse * Piece.
-    

@@ -44,13 +44,11 @@ choose_move(Board, Player, 0, (Xi, Yi, Xf, Yf)):-   % human
     read_position(Xf, Yf).
 
 choose_move(Board, Player, 1, (Xi, Yi, Xf, Yf)):-   % computer dumb (random)
-    write('Press enter to make computer move.'), nl,
-    get_char(_),
+    press_enter('Press enter to make the computer move'),
     random_move(Board, Player, (Xi, Yi, Xf, Yf)).
 
 choose_move(Board, Player, 2, (Xi, Yi, Xf, Yf)):-   % computer smart
-    write('Press enter to make computer move.'), nl,
-    get_char(_),
+    press_enter('Press enter to make the computer move'),
     smart_move(Board, Player, (Xi, Yi, Xf, Yf)).
 
 % game_cycle(+GameState, +RedLevel-GreenLevel)
@@ -66,32 +64,32 @@ win_by_elimination(Board, g):-
 win_by_elimination(Board, r):-
     not_in_board(g-5, Board).
 
-win_by_golden(Board, g):-
-    get_value(Board, 2, 6, Color1-_),
-    Color1 = g,
-    get_value(Board, 6, 6, Color2-_),
-    Color2 = g.
+win_by_golden(g-Board, g):-
+    get_value(Board, 2, 6, g-_),
+    get_value(Board, 6, 6, g-_).
 
-win_by_golden(Board, r):-
-    get_value(Board, 2, 6, Color1-_),
-    Color1 = r,
-    get_value(Board, 6, 6, Color2-_),
-    Color2 = r.
+win_by_golden(r-Board, r):-
+    get_value(Board, 2, 6, r-_),
+    get_value(Board, 6, 6, r-_).
 
-game_over(Board, Winner):-
+game_over(_-Board, Winner):-
     win_by_elimination(Board, Winner).
 
-game_over(Board, Winner):-
-    win_by_golden(Board, Winner).
+game_over(Player-Board, Winner):-
+    win_by_golden(Player-Board, Winner).
 
 congratulate(r):-
-    write('Red player won!'), nl.
+    write('Red player won!'), nl,
+    press_enter('Press Enter to continue'),
+    !, fail.
 
 congratulate(g):-
-    write('Green player won!'), nl.
+    write('Green player won!'), nl,
+    press_enter('Press Enter to continue'),
+    !, fail.
 
-game_cycle(_-Board, _, _):-
-    game_over(Board, Winner), !,
+game_cycle(Player-Board, _, _):-
+    game_over(Player-Board, Winner), !,
     congratulate(Winner).
 
 game_cycle(Player-Board, LevelsFromMenu, BoardMaxSize):-

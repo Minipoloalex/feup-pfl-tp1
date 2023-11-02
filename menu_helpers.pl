@@ -1,6 +1,10 @@
 clear_screen:-
     write('\33\[2J').
 
+press_enter(Message):-
+    write(Message), nl,
+    skip_line.
+
 print_text([]).
 print_text([FirstCharCode | RestText]):-
     char_code(FirstChar, FirstCharCode),
@@ -87,8 +91,11 @@ read_position(X, Y):-
     read_number_prompt('Row: ', 'Invalid row!', X),
     X \= 0,
     read_number_prompt('Column: ', 'Invalid column!', Y),
-    Y \= 0.
-
+    Y \= 0,
+    !.
+read_position(_, _):-
+    write('You introduced 0 to go back'), nl,
+    !, fail.
 select_level(Level, ComputerPlayer):-
     append(ComputerPlayer, " computer player", TitleLastPart),
     append("Select the level for ", TitleLastPart, Title),
@@ -100,11 +107,15 @@ select_level(Level, ComputerPlayer):-
 select_piece(Board-Player, Xi, Yi):-
     write('Select a piece to move: '), nl,
     read_position(Xi, Yi),
-    valid_piece(Board, Xi, Yi, Player-_).
+    valid_piece(Board, Xi, Yi, Player-_),
+    !.
+select_piece(Board-Player, Xi, Yi):-
+    write('Invalid piece!'), nl,
+    select_piece(Board-Player, Xi, Yi).
 
 select_padding(PaddingSize):-
-    write('Select a padding size between 0 and 4 or just press Enter to select no padding.'),nl,
+    write('Select a padding size between 0 and 4 or just press Enter to select no padding.'), nl,
     write('To go back select an invalid padding size.'), nl,
     read_number(PaddingSize),
-    PaddingSize >= 0, PaddingSize =< 5.
+    PaddingSize >= 0, PaddingSize =< 4.
 
