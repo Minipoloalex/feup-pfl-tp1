@@ -47,12 +47,14 @@ choose_move(GS, P, 0, Move):-
     choose_move(GS, P, 0, Move).
 
 choose_move(Board-AdvRules, Player, 1, (Xi, Yi, Xf, Yf)):-   % computer dumb (random)
-    press_enter('Press enter to make the computer move'),
-    random_move(Board-AdvRules, Player, (Xi, Yi, Xf, Yf)).
+    random_move(Board-AdvRules, Player, (Xi, Yi, Xf, Yf)),
+    describe_computer_move(Xi, Yi, Xf, Yf),
+    press_enter('Press enter to make the computer move').
 
 choose_move(Board-AdvRules, Player, 2, (Xi, Yi, Xf, Yf)):-   % computer smart
-    press_enter('Press enter to make the computer move'),
-    smart_move(Board-AdvRules, Player, (Xi, Yi, Xf, Yf)).
+    smart_move(Board-AdvRules, Player, (Xi, Yi, Xf, Yf)),
+    describe_computer_move(Xi, Yi, Xf, Yf),
+    press_enter('Press enter to make the computer move').
 
 % game_cycle(+GameState, +RedLevel-GreenLevel)
 not_in_board(_, []). % base case

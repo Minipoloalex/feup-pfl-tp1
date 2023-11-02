@@ -5,6 +5,11 @@ press_enter(Message):-
     write(Message), nl,
     skip_line.
 
+describe_computer_move(Xi, Yi, Xf, Yf):-
+    write('The computer is going to move from '),
+    write('('), write(Xi), write(', '), write(Yi), write(') to '),
+    write('('), write(Xf), write(', '), write(Yf), write(')'), nl.
+
 print_text([]).
 print_text([FirstCharCode | RestText]):-
     char_code(FirstChar, FirstCharCode),
