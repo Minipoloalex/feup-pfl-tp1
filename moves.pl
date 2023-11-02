@@ -2,18 +2,18 @@
 :- ensure_loaded(library(random)).
 
 % valid_moves(+Board, +Player, -ListOfMoves)
-valid_moves(Board, Player, ListOfMoves):-
+valid_moves(Board-AdvRules, Player, ListOfMoves):-
     findall((Xi,Yi,Xf,Yf), (
         valid_piece(Board, Xi, Yi, Player-Piece),
-        get_valid_moves_bfs((Xi,Yi), Piece, Player-Board, Moves),
+        get_valid_moves_bfs((Xi,Yi), Piece, Player-Board-AdvRules, Moves),
         member((Xf,Yf), Moves)
     ), ListOfMoves).
 
 % move(+Board, +Player-AttackerPiece, ?Xf-Yf, -NewGameState)
-move(Player-Board, (Xi, Yi, Xf, Yf), NP-NB):-  % the piece to move should already be validated
+move(Player-Board-AdvRules, (Xi, Yi, Xf, Yf), NP-NB):-  % the piece to move should already be validated
     other_player(Player, NP),
     valid_piece(Board, Xi, Yi, Player-AttackerPiece),
-    get_valid_moves_bfs((Xi,Yi), AttackerPiece, Player-Board, Moves),
+    get_valid_moves_bfs((Xi,Yi), AttackerPiece, Player-Board-AdvRules, Moves),
     memberchk((Xf,Yf), Moves),
     get_value(Board, Xf, Yf, Value),
     get_resulting_piece(Player-AttackerPiece, Value, ResultingPiece),
@@ -128,12 +128,12 @@ filter_empty([_ | T], Board, Result):-
     filter_empty(T, Board, Result).
 
 % if piece is square (4), then can jump over other pieces -> different bfs
-get_valid_moves_bfs((Xi, Yi), 4, Player-Board, ListMoves):-
+get_valid_moves_bfs((Xi, Yi), 4, Player-Board-1, ListMoves):-   % advanced rules on
     !,
     % if is golden square, MaxMoves is Piece + 1, else MaxMoves is Piece
     get_valid_moves_bfs_square(4, 4, Player-Board, [(Xi, Yi, 0)], [(Xi,Yi)], ListMoves).
-get_valid_moves_bfs((Xi, Yi), Piece, Player-Board, ListMoves):-
-    % if is golden square, MaxMoves is Piece + 1, else MaxMoves is Piece
+get_valid_moves_bfs((Xi, Yi), Piece, Player-Board-_, ListMoves):-   % advanced rules on
+    % if AdvRules = 1 and golden square, MaxMoves is Piece + 1, else MaxMoves is Piece
     get_valid_moves_bfs(Piece, Piece, Player-Board, [(Xi, Yi, 0)], [(Xi,Yi)], ListMoves).
 
 get_valid_moves_bfs(_, _, _, [], _, []).
@@ -213,21 +213,23 @@ replace_element([H|T], Col, NewValue, [H|NewT]):-
 
 % random_move(+Board, +Player, -Move)
 % returns a random move for the computer to play
-random_move(Board, Player, (Xi, Yi, Xf, Yf)):-
-    valid_moves(Board, Player, ListOfMoves),
+random_move(Board-AdvRules, Player, (Xi, Yi, Xf, Yf)):-
+    valid_moves(Board-AdvRules, Player, ListOfMoves),
     random_member((Xi, Yi, Xf, Yf), ListOfMoves).
 
 
 % smart_move(+Board, +Player, -Move)
 % returns a smart move for the computer to play
-smart_move(Board, Player, (Xi, Yi, Xf, Yf)):-
-    valid_moves(Board, Player, ListOfMoves),
-    get_best_move(Board, Player, ListOfMoves, (Xi, Yi, Xf, Yf)).
+smart_move(Board-AdvRules, Player, (Xi, Yi, Xf, Yf)):-
+    valid_moves(Board-AdvRules, Player, ListOfMoves),
+    write(ListOfMoves), nl,
+    get_best_move(Board-AdvRules, Player, ListOfMoves, (Xi, Yi, Xf, Yf)).
 
 % get_best_move(+Board, +Player, +ListOfMoves, -BestMove)
 % returns the best move for the computer to play
-get_best_move(Board, Player, ListOfMoves, BestMove):-
-    evaluate_moves(Board, Player, ListOfMoves, ListOfValues),
+get_best_move(Board-AdvRules, Player, ListOfMoves, BestMove):-
+    evaluate_moves(Board-AdvRules, Player, ListOfMoves, ListOfValues),
+    write(ListOfValues), nl,
     max_member(MaxValue, ListOfValues),
     findall((Xi, Yi, Xf, Yf), (
         nth1(Index, ListOfValues, MaxValue),
@@ -238,10 +240,10 @@ get_best_move(Board, Player, ListOfMoves, BestMove):-
 % evaluate_moves(+Board, +Player, +ListOfMoves, -ListOfValues)
 % returns the list of values for each move, with the same order as the list of moves
 evaluate_moves(_, _, [], []).
-evaluate_moves(Board, Player, [(Xi, Yi, Xf, Yf) | RestMoves], [Value | RestValues]):-
-    move(Player-Board, (Xi, Yi, Xf, Yf), _-NewBoard),
+evaluate_moves(Board-AdvRules, Player, [(Xi, Yi, Xf, Yf) | RestMoves], [Value | RestValues]):-
+    move(Player-Board-AdvRules, (Xi, Yi, Xf, Yf), _-NewBoard),
     evaluate_board(NewBoard, Player, Value),
-    evaluate_moves(Board, Player, RestMoves, RestValues).
+    evaluate_moves(Board-AdvRules, Player, RestMoves, RestValues).
 
 % evaluate_board(+Board, +Player, -Value)
 % returns the value of the board for the player

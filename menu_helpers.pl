@@ -91,11 +91,7 @@ read_position(X, Y):-
     read_number_prompt('Row: ', 'Invalid row!', X),
     X \= 0,
     read_number_prompt('Column: ', 'Invalid column!', Y),
-    Y \= 0,
-    !.
-read_position(_, _):-
-    write('You introduced 0 to go back'), nl,
-    !, fail.
+    Y \= 0.
 select_level(Level, ComputerPlayer):-
     append(ComputerPlayer, " computer player", TitleLastPart),
     append("Select the level for ", TitleLastPart, Title),
@@ -119,3 +115,11 @@ select_padding(PaddingSize):-
     read_number(PaddingSize),
     PaddingSize >= 0, PaddingSize =< 4.
 
+select_advanced_rules(AdvancedRules):-
+    print_banner(
+        ["0. Go Back", "1. Yes", "2. No"],
+        "Do you want to play with advanced rules?",
+        50
+    ),
+    select_option(0, 2, AdvancedRules),
+    AdvancedRules \= 0.

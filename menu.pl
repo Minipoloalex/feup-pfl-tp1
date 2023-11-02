@@ -26,6 +26,7 @@ main_menu_option(3):-
     play_game(RedLevel-GreenLevel).
 
 play_game(RedLevel-GreenLevel):-
+    select_advanced_rules(AdvRules),
     select_padding(PaddingSize),
     initial_state(PaddingSize, Board),
     clear_screen,
@@ -33,23 +34,25 @@ play_game(RedLevel-GreenLevel):-
     normal_max_size(NormalSize),
     BoardMaxSize is PaddingSize * 4 + NormalSize,
     display_game(Board, BoardMaxSize),
-    game_cycle(r-Board, RedLevel-GreenLevel, BoardMaxSize).
+    game_cycle(r-Board-AdvRules, RedLevel-GreenLevel, BoardMaxSize).
 
 % choose_move(+Board, +Player, +Level, -Move)
-choose_move(Board, Player, 0, (Xi, Yi, Xf, Yf)):-   % human
-    repeat,
+choose_move(Board-_, Player, 0, (Xi, Yi, Xf, Yf)):-   % human
     select_piece(Board-Player, Xi, Yi),
 
     write('Select a position to move to: '), nl,
     read_position(Xf, Yf).
+choose_move(GS, P, 0, Move):-
+    write('Invalid move! Try again.'), nl,
+    choose_move(GS, P, 0, Move).
 
-choose_move(Board, Player, 1, (Xi, Yi, Xf, Yf)):-   % computer dumb (random)
+choose_move(Board-AdvRules, Player, 1, (Xi, Yi, Xf, Yf)):-   % computer dumb (random)
     press_enter('Press enter to make the computer move'),
-    random_move(Board, Player, (Xi, Yi, Xf, Yf)).
+    random_move(Board-AdvRules, Player, (Xi, Yi, Xf, Yf)).
 
-choose_move(Board, Player, 2, (Xi, Yi, Xf, Yf)):-   % computer smart
+choose_move(Board-AdvRules, Player, 2, (Xi, Yi, Xf, Yf)):-   % computer smart
     press_enter('Press enter to make the computer move'),
-    smart_move(Board, Player, (Xi, Yi, Xf, Yf)).
+    smart_move(Board-AdvRules, Player, (Xi, Yi, Xf, Yf)).
 
 % game_cycle(+GameState, +RedLevel-GreenLevel)
 not_in_board(_, []). % base case
@@ -88,21 +91,21 @@ congratulate(g):-
     press_enter('Press Enter to continue'),
     !, fail.
 
-game_cycle(Player-Board, _, _):-
+game_cycle(Player-Board-_, _, _):-
     game_over(Player-Board, Winner), !,
     congratulate(Winner).
 
-game_cycle(Player-Board, LevelsFromMenu, BoardMaxSize):-
+game_cycle(Player-Board-AdvRules, LevelsFromMenu, BoardMaxSize):-
     write('Player '), write(Player), write(' turn.'), nl,
     
     level(Player, LevelsFromMenu, Level),
-    choose_move(Board, Player, Level, (Xi, Yi, Xf, Yf)),
-    move(Player-Board, (Xi, Yi, Xf, Yf), NP-NB),
+    choose_move(Board-AdvRules, Player, Level, (Xi, Yi, Xf, Yf)),
+    move(Player-Board-AdvRules, (Xi, Yi, Xf, Yf), NP-NB),
 
     clear_screen,
     display_game(NB, BoardMaxSize),
     !,
-    game_cycle(NP-NB, LevelsFromMenu, BoardMaxSize).
+    game_cycle(NP-NB-AdvRules, LevelsFromMenu, BoardMaxSize).
 
 % level(+Player, +RedLevel-+GreenLevel, -Level)
 % Used to identify the level of the given player (0 human, 1 random, 2 greedy/optimal)

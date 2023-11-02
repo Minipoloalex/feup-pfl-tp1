@@ -35,7 +35,6 @@ change_player(green, red).
 get_line(LineNr, PaddingSize, Line):-
     (LineNr =:= 1; LineNr =:= 7),   % There are 7 lines
     !,
-    write('Line Nr = '), write(LineNr), nl,
     minus_ones_each_side(7, PaddingSize, NumberMinusOnes),
     replicate(NumberMinusOnes, -1, MinusOnes),
     append([0, 0], MinusOnes, End),
@@ -79,5 +78,4 @@ get_lines(LineNr, PaddingSize, [Line | RecRes]):-
 % initial_state(+PaddingSize, -GameState)
 initial_state(PaddingSize, GameState):-
     PaddingSize >= 0,
-    get_lines(PaddingSize, GameState),
-    write(GameState), nl.
+    get_lines(PaddingSize, GameState).
