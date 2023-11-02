@@ -15,7 +15,7 @@ The only requirement to run our game, besides SICStus Prolog, is to run the prog
 
 ### 3.1 Pieces
 Each player starts with a pentagon, 3 squares, 3 triangles and 6 circles.
-The pieces move according to their number of sides and in any direction (i.e. movement does not need to be in a straight line). Pieces cannot jump other pieces.
+The pieces move according to their number of sides and in any direction (i.e. movement does not need to be in a straight line). Pieces cannot normally jump other pieces.
 
 - Circle: Moves 1 space
 - Triangle: Moves 3 spaces
@@ -27,13 +27,16 @@ Attacks from different pieces have 3 possible outcomes:
 - Both the attacker and the attacked get captured
 - The attacker cannot actually attack the other piece (this is considered an invalid move)
 
-Here we present in tex the interactions between all the pieces in relation to how they can attack each other, and what outcomes arise from such attacks.
+Here we present in text the interactions between all the pieces in relation to how they can attack each other, and what outcomes arise from such attacks.
+
+For clarification, the rows represent the attacking piece, and the columns represent the attacked piece.
+
 | Attacking piece | Circle | Triangle | Square | Pentagon |
 |:-:|:-:|:-:|:-:|:-:|
-| Circle | Captures | Captures | Captures | Captures |
-| Triangle | Both captured | Captures | Captures | Captures |
-| Square | Cannot capture | Both captured | Captures | Captures |
-| Pentagon | Cannot capture | Cannot capture | Cannot capture | Captures |
+| **Circle** | Captures | Captures | Captures | Captures |
+| **Triangle** | Both captured | Captures | Captures | Captures |
+| **Square** | Cannot capture | Both captured | Captures | Captures |
+| **Pentagon** | Cannot capture | Cannot capture | Cannot capture | Captures |
 
 ### 3.2 Turns
 Each player takes turns in moving one of their pieces. Combat ends the turn of the player.
@@ -57,10 +60,6 @@ The game has an optional set of advanced rules. We implement this giving the opt
 ## 4. Game logic
 
 ### 4.1 Internal Game State Representation
-<!--
-how game state is represented: Player-Board (board is a list of lists with -1s, 0s for empty, r for player, 1 for circle, ...)
-include representation of initial, intermediate and final game states
--->
 In our project, the game is represented by a board, the player whose turn it is to play and whether or not advanced rules are being used. The player is either 'r' or 'g', which represents red (player 1) or green (player 2), respectively. The board is represented by a list of lists, where each list represents a row of the board. Each element of a row is either an invalid position, an empty space or a piece from a certain player. 
 
 Invalid positions are represented as -1, and they exist to facilitate the correlation between the user input (row X and column Y) to a certain value from the board. Empty spaces are represented by 0, and pieces are represented by the player's color and the piece's number of sides, which is the number of spaces it can move at a time.
@@ -68,13 +67,28 @@ Examples of pieces:
 - r-1 represents a circle (1) from the red player (r)
 - g-3 represents a triangle (3) from the green player
 
-<!--
-TODO: insert our board representation of the initial, intermediate and final game states
--->
+This is the internal representation of the board in the starting position.
+```prolog
+[
+    [-1,-1,-1,-1,0,0,-1,-1,-1,-1],
+    [-1,r-1,0,r-1,0,0,0,g-1,0,g-1,-1],
+    [0,r-4,r-3,0,0,0,0,g-3,g-4,0],
+    [r-1,r-3,r-5,r-4,r-1,0,g-1,g-4,g-5,g-3,g-1],
+    [0,r-4,r-3,0,0,0,0,g-3,g-4,0],
+    [-1,r-1,0,r-1,0,0,0,g-1,0,g-1,-1],
+    [-1,-1,-1,-1,0,0,-1,-1,-1,-1]
+]
+```
+
 
 ### 4.2 Game State Visualization
-We provide a way for users to make the board have a different size. However, the board does not grow in all directions. The user can input a padding size which will only be used to add padding to the board on both sides.
-<!--TODO: add something demonstrating the padding-->
+We provide a way for users to make the board have a different size. However, the board does not grow in all directions. The user can input a padding size which will only be used to add padding to the board on both sides. This is showcased below.
+
+| No padding | One unit of padding |
+| :---: | :---: |
+| ![Alt text](images/starting_board.png) | ![Alt text](images/one_padding.png) |
+
+
 The display_game predicate only makes the assumption that the board has 7 lines, and does not assume anything regarding the columns, since their size can be different.
 This predicate displays the complete board and also the labels for the rows and columns.
 The labels for the columns depend on the user input for the padding.
