@@ -287,12 +287,23 @@ evaluate_position(_-PosPiece, _, RowIndex, ColIndex, Value):- % PosPlayer \= Pla
 % evaluate_piece(+Piece, +RowIndex, +ColIndex, -Value)
 % returns the value of a piece placed at a certain position
 evaluate_piece(5, _, _, 1000):- !.   % the pentagon is the most valuable piece, without it the game is lost
-evaluate_piece(_, 2, 6, 200):- !.    % golden square on top
-evaluate_piece(_, 6, 6, 200):- !.    % golden square on bottom
+
+evaluate_piece(_, 2, C, 200):- 
+    padding(PaddingSize),
+    Center is 6 + 2 * PaddingSize,
+    C =:= Center, !.    % golden square on top
+
+evaluate_piece(_, 6, C, 200):-
+    padding(PaddingSize),
+    Center is 6 + 2 * PaddingSize,
+    C =:= Center, !.    % golden square on bottom
+
 evaluate_piece(Piece, Row, Col, Value):-
     % the closer the piece is to the center, the more valuable it is, the center is the square (4, 6)
     % the distance will be approximated by the manhattan distance
     % the value of the piece is the inverse of the MD multiplied by the value of the piece itself
-    Dist is abs(Row - 4) + abs(Col - 6),
+    padding(PaddingSize),
+    Center is 6 + 2 * PaddingSize,
+    Dist is abs(Row - 4) + abs(Col - Center),
     Inverse is 5 - Dist,
     Value is Inverse * Piece.

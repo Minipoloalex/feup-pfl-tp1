@@ -31,6 +31,7 @@ main_menu_option(4):-
 play_game(RedLevel-GreenLevel):-
     select_advanced_rules(AdvRules),
     select_padding(PaddingSize),
+    asserta(padding(PaddingSize)),
     initial_state(PaddingSize, Board),
     clear_screen,
 
@@ -73,12 +74,16 @@ win_by_elimination(Board, r):-
     not_in_board(g-5, Board).
 
 win_by_golden(g-Board, g):-
-    get_value(Board, 2, 6, g-_),
-    get_value(Board, 6, 6, g-_).
+    padding(PaddingSize),
+    Col is 6 + 2 * PaddingSize,
+    get_value(Board, 2, Col, g-_),
+    get_value(Board, 6, Col, g-_).
 
 win_by_golden(r-Board, r):-
-    get_value(Board, 2, 6, r-_),
-    get_value(Board, 6, 6, r-_).
+    padding(PaddingSize),
+    Col is 6 + 2 * PaddingSize,
+    get_value(Board, 2, Col, r-_),
+    get_value(Board, 6, Col, r-_).
 
 game_over(_-Board, Winner):-
     win_by_elimination(Board, Winner).
