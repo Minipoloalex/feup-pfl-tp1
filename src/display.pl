@@ -96,9 +96,9 @@ write_separators_line(LineSize, LineNr, InitialIndex, AuxLine, FirstCorner, Last
     write(LastCorner),
     nl.
 
-% display_game(+Board, +MaxSize)
+% display_game(+Board-+MaxSize)
 % Displays the game board
-display_game(Board, MaxSize) :-
+display_game(Board-MaxSize) :-
     write_board_upper_part(1, [ [] | Board ]),
     write_column_numbers(MaxSize).
 

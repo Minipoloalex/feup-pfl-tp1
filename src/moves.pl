@@ -259,23 +259,23 @@ get_best_move(Board-AdvRules, Player, ListOfMoves, BestMove):-
 evaluate_moves(_, _, [], []).
 evaluate_moves(Board-AdvRules, Player, [(Xi, Yi, Xf, Yf) | RestMoves], [Value | RestValues]):-
     move(Player-Board-AdvRules, (Xi, Yi, Xf, Yf), _-NewBoard),
-    evaluate_board(NewBoard, Player, Value),
+    value(NewBoard, Player, Value),
     evaluate_moves(Board-AdvRules, Player, RestMoves, RestValues).
 
-% evaluate_board(+Board, +Player, -Value)
+% value(+Board, +Player, -Value)
 % returns the value of the board for the player
-evaluate_board(Board, Player, Value):-
-    evaluate_board(Board, Player, 1, 1, 0, Value).
+value(Board, Player, Value):-
+    value(Board, Player, 1, 1, 0, Value).
 
-% evaluate_board(+Board, +Player, +Row, +Col, +Value, -FinalValue)
+% value(+Board, +Player, +Row, +Col, +Value, -FinalValue)
 % returns the value of the board for the player
 % Row and Col are important because central squares are more valuable (especially the golden ones)
-evaluate_board([], _, _, _, Value, Value).
-evaluate_board([Row | Rest], Player, RowIndex, ColIndex, Value, FinalValue):-
+value([], _, _, _, Value, Value).
+value([Row | Rest], Player, RowIndex, ColIndex, Value, FinalValue):-
     evaluate_row(Row, Player, RowIndex, ColIndex, RowValue),
     NewRowIndex is RowIndex + 1,
     NewValue is Value + RowValue,
-    evaluate_board(Rest, Player, NewRowIndex, ColIndex, NewValue, FinalValue).
+    value(Rest, Player, NewRowIndex, ColIndex, NewValue, FinalValue).
 
 % evaluate_row(+Row, +Player, +RowIndex, +ColIndex, -Value)
 % returns the value of the row for the player

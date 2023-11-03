@@ -54,7 +54,7 @@ play_game(RedLevel-GreenLevel):-
 
     normal_max_size(NormalSize),
     BoardMaxSize is PaddingSize * 4 + NormalSize,
-    display_game(Board, BoardMaxSize),
+    display_game(Board-BoardMaxSize),
     game_cycle(r-Board-AdvRules, RedLevel-GreenLevel, BoardMaxSize).
 
 % choose_move(+Board, +Player, +Level, -Move)
@@ -145,7 +145,7 @@ game_cycle(Player-Board-AdvRules, LevelsFromMenu, BoardMaxSize):-
     move(Player-Board-AdvRules, (Xi, Yi, Xf, Yf), NP-NB),
 
     clear_screen,
-    display_game(NB, BoardMaxSize),
+    display_game(NB-BoardMaxSize),
     !,
     game_cycle(NP-NB-AdvRules, LevelsFromMenu, BoardMaxSize).
 
