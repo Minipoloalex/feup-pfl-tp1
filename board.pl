@@ -1,26 +1,35 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                            %
+%   This module contains auxiliary predicates to create      %
+%   the initial state of the game.                           %
+%                                                            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 :- ensure_loaded(library(lists)).
 
 % replicate(+Amount, +Elem, ?List)
+% Creates a list with Amount number of Elem
 replicate(0, _, []):-!.
 replicate(Amount, Elem, [Elem | T]):-
     Amount1 is Amount - 1,
     replicate(Amount1, Elem, T).
 
-
-
 % minus_ones_each_side(+LineNr, +PaddingSize, -NumberMinusOnes)
 % Gets the number of minus ones a line has on each side
 minus_ones_each_side(1, PS, N):-
     N is PS * 2 + 4.
+
 minus_ones_each_side(2, _, 1).
 minus_ones_each_side(3, _, 0).
 minus_ones_each_side(4, _, 0).
 minus_ones_each_side(5, _, 0).
 minus_ones_each_side(6, _, 1).
+
 minus_ones_each_side(7, PS, N):-
     N is PS * 2 + 4.
 
 % get_pieces(+LineNr, +Colo, -Pieces)
+% Gets the pieces of a line
 % switch case with default value empty list (no pieces)
 get_pieces(2, Color, [Color-1, 0, Color-1]):-!. % [circle, empty, circle]
 get_pieces(3, Color, [0, Color-4, Color-3, 0]):-!. % [empty, square, triangle, empty]
@@ -29,7 +38,8 @@ get_pieces(5, Color, [0, Color-4, Color-3, 0]):-!.
 get_pieces(6, Color, [Color-1, 0, Color-1]):-!.
 get_pieces(_, _, []).
 
-
+% get_line(+LineNr, +PaddingSize, -Line)
+% Gets a line of the board (generates it)
 get_line(LineNr, PaddingSize, Line):-
     (LineNr =:= 1; LineNr =:= 7),   % There are 7 lines
     !,
@@ -63,6 +73,7 @@ get_line(LineNr, PaddingSize, Line):-
     append(MinusOnes, End7, Line).
 
 % get_lines(+PaddingSize, -Lines)
+% Gets all the lines of the board (generates them)
 get_lines(PaddingSize, Lines):-
     get_lines(1, PaddingSize, Lines).
 
@@ -74,6 +85,7 @@ get_lines(LineNr, PaddingSize, [Line | RecRes]):-
     get_lines(NextLineNr, PaddingSize, RecRes).
 
 % initial_state(+PaddingSize, -GameState)
+% Gets the initial state of the game
 initial_state(PaddingSize, GameState):-
     PaddingSize >= 0,
     get_lines(PaddingSize, GameState).

@@ -1,7 +1,15 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                            %
+%   This module contains the game logic, like getting valid  %
+%   moves, executing moves, and computer moves               %
+%                                                            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 :- ensure_loaded(library(lists)).
 :- ensure_loaded(library(random)).
 
 % valid_moves(+Board, +Player, -ListOfMoves)
+% returns the list of valid moves for the player
 valid_moves(Board-AdvRules, Player, ListOfMoves):-
     findall((Xi,Yi,Xf,Yf), (
         valid_piece(Board, Xi, Yi, Player-Piece),
@@ -10,6 +18,7 @@ valid_moves(Board-AdvRules, Player, ListOfMoves):-
     ), ListOfMoves).
 
 % move(+Board, +Player-AttackerPiece, ?Xf-Yf, -NewGameState)
+% returns the new game state after playing the designated move, if the move is valid
 move(Player-Board-AdvRules, (Xi, Yi, Xf, Yf), NP-NB):-  % the piece to move should already be validated
     other_player(Player, NP),
     valid_piece(Board, Xi, Yi, Player-AttackerPiece),
@@ -20,12 +29,14 @@ move(Player-Board-AdvRules, (Xi, Yi, Xf, Yf), NP-NB):-  % the piece to move shou
     execute_move(Board, (Xi, Yi, Xf, Yf), ResultingPiece, NB).
 
 % execute_move(+Board, +Move, -NewBoard)
+% returns the new board after executing the move
 execute_move(Board, (Xi, Yi, Xf, Yf), ResultingPiece, NB):-
     replace_matrix_value(Board, Xi, Yi, 0, IntermediaryBoard),
     replace_matrix_value(IntermediaryBoard, Xf, Yf, ResultingPiece, NB).
 
 
 % other_player(?Player, ?OtherPlayer)
+% changes the current player
 other_player(r, g).
 other_player(g, r).
 
@@ -41,9 +52,9 @@ subtract([A|T], B, [A|R]) :-
 % valid_piece(+Board, ?X, ?Y, ?Piece)
 % Unifies each possible piece (for the computer)
 valid_piece(Board, X, Y, Player-Piece):-
-    valid_position(Board, X, Y, Player-Piece),
+    valid_position(Board, X, Y, Player-Piece), % if Piece is -1 or 0, then this fails (no player)
     nth1(X, Board, Line),
-    nth1(Y, Line, Player-Piece).    % if Piece is -1 or 0, then this fails (no player)
+    nth1(Y, Line, Player-Piece).    
 
 % get_value(+Board, +X, +Y, ?Value)
 get_value(Board, X, Y, Value):-
@@ -56,25 +67,31 @@ valid_position(Board, X, Y, Piece):-
     Piece \= -1.   % -1 is an invalid position
 
 % get_resulting_piece(+Attacker, +Attacked, ?ResultingPiece)
+% check the rules for attacking pieces
 get_resulting_piece(Player-_, Player-_, _):-
     !, fail.    % assure that the same player is not attacking itself
+
 get_resulting_piece(Piece, 0, Piece).
 get_resulting_piece(P1-Attacker, _-Attacked, P1-Attacker):-
     Attacker =< Attacked,
     !.
+
 get_resulting_piece(_-3, _-1, 0).
 get_resulting_piece(_-4, _-3, 0).
 
-
+% adjacent_diff(+Row, -ListAdjacent)
+% returns the list of adjacent offsets for a given row
 adjacent_diff(Row, [(0, -1), (0, 1), (-1, -1), (-1, 0), (1, -1), (1, 0)]):- % row is even
     0 is Row mod 2,
     !.
 adjacent_diff(_, [(0, -1), (0, 1), (-1, 1), (-1, 0), (1, 1), (1, 0)]).    % row is odd
 
 % get_adjacent(+Xi, +Yi, +AdjacentDiff, +Board, -ListAdjacent)
+% returns the list of adjacent positions for a given position
 get_adjacent(Xi, Yi, Player-Piece, Board, ListAdjacent):-
     adjacent_diff(Xi, Diff),
     get_adjacent(Xi, Yi, Player-Piece, Diff, Board, ListAdjacent).
+
 get_adjacent(_, _, _, [], _, []).
 get_adjacent(Xi, Yi, Player-Piece, [(XDiff, YDiff) | Rest], Board, [(Xf, Yf) | RecursiveResult]):-
     Xf is Xi + XDiff,
@@ -82,6 +99,7 @@ get_adjacent(Xi, Yi, Player-Piece, [(XDiff, YDiff) | Rest], Board, [(Xf, Yf) | R
     valid_position(Board, Xf, Yf, _),
     !,
     get_adjacent(Xi, Yi, Player-Piece, Rest, Board, RecursiveResult).
+
 get_adjacent(Xi, Yi, Player-Piece, [(_, _) | Rest], Board, RecursiveResult):-
     % if cannot move to it, then just ignore it
     get_adjacent(Xi, Yi, Player-Piece, Rest, Board, RecursiveResult).
@@ -91,7 +109,6 @@ get_adjacent(Xi, Yi, Player-Piece, [(_, _) | Rest], Board, RecursiveResult):-
 associate_distance_to_move([], _, []).
 associate_distance_to_move([(X, Y) | T], Dist, [(X, Y, Dist) | R]):-
     associate_distance_to_move(T, Dist, R).
-
 
 % filter_possible_moves(+AttackerPiece, +Moves, +Board, -PossibleMoves)
 % returns the possible moves. These are moves that end up in empty spaces or in valid enemy pieces considering the attacker piece
@@ -113,6 +130,7 @@ filter_all_except_enemy_squares(Player-Piece, [(X, Y) | T], Board, ResultMoves):
     get_value(Board, X, Y, Other-Piece),    % if move to enemy square then do not add to result
     !,
     filter_all_except_enemy_squares(Player-Piece, T, Board, ResultMoves).
+
 filter_all_except_enemy_squares(Player-Piece, [(X, Y) | T], Board, [(X, Y) | ResultMoves]):-
     filter_all_except_enemy_squares(Player-Piece, T, Board, ResultMoves).
 
@@ -123,15 +141,20 @@ filter_empty([(X,Y) | T], Board, [(X,Y) | TailResult]):-
     get_value(Board, X, Y, 0),  % if empty, then add to result
     !,
     filter_empty(T, Board, TailResult).
+
 filter_empty([_ | T], Board, Result):-
     % not an empty space, so ignore it
     filter_empty(T, Board, Result).
+
+% get_valid_moves_bfs(+Piece, +MaxMoves, +Player-Board, +Queue, +Visited, -ListMoves)
+% returns the list of valid moves for a piece using bfs
 
 % if piece is square (4), then can jump over other pieces -> different bfs
 get_valid_moves_bfs((Xi, Yi), 4, Player-Board-1, ListMoves):-   % advanced rules on
     !,
     % if is golden square, MaxMoves is Piece + 1, else MaxMoves is Piece
     get_valid_moves_bfs_square(4, 4, Player-Board, [(Xi, Yi, 0)], [(Xi,Yi)], ListMoves).
+
 get_valid_moves_bfs((Xi, Yi), Piece, Player-Board-_, ListMoves):-   % advanced rules on
     % if AdvRules = 1 and golden square, MaxMoves is Piece + 1, else MaxMoves is Piece
     get_valid_moves_bfs(Piece, Piece, Player-Board, [(Xi, Yi, 0)], [(Xi,Yi)], ListMoves).
@@ -200,23 +223,19 @@ replace_matrix_value([Row|T], X, Y, NewValue, [Row|NewT]):-
     NewX is X - 1,
     replace_matrix_value(T, NewX, Y, NewValue, NewT).
 
-% Helper function to replace an element at a specific position in a list
 % replace_element(+List, +Column, +NewValue, -NewList)
+% Helper function to replace an element at a specific position in a list
 replace_element([], _, _, []).
 replace_element([_|T], 1, NewValue, [NewValue|T]):- !.
 replace_element([H|T], Col, NewValue, [H|NewT]):-
     NewCol is Col - 1,
     replace_element(T, NewCol, NewValue, NewT).
 
-
-
-
 % random_move(+Board, +Player, -Move)
 % returns a random move for the computer to play
 random_move(Board-AdvRules, Player, (Xi, Yi, Xf, Yf)):-
     valid_moves(Board-AdvRules, Player, ListOfMoves),
     random_member((Xi, Yi, Xf, Yf), ListOfMoves).
-
 
 % smart_move(+Board, +Player, -Move)
 % returns a smart move for the computer to play
