@@ -104,7 +104,7 @@ get_adjacent(Xi, Yi, Player-Piece, [(_, _) | Rest], Board, RecursiveResult):-
     % if cannot move to it, then just ignore it
     get_adjacent(Xi, Yi, Player-Piece, Rest, Board, RecursiveResult).
 
-% associate_distance_to_move(+Moves, Distance, -ResultingMoves)
+% associate_distance_to_move(+Moves, +Distance, -ResultingMoves)
 % each element (X, Y) transformed to (X, Y, Dist)
 associate_distance_to_move([], _, []).
 associate_distance_to_move([(X, Y) | T], Dist, [(X, Y, Dist) | R]):-
@@ -146,6 +146,15 @@ filter_empty([_ | T], Board, Result):-
     % not an empty space, so ignore it
     filter_empty(T, Board, Result).
 
+% golden_square(?X, ?Y)
+% Unifies X (row) and Y (column) with the positions of the golden squares
+golden_square(2, Y):-
+    padding(PaddingSize),
+    Y is 6 + 2 * PaddingSize.
+golden_square(6, Y):-
+    padding(PaddingSize),
+    Y is 6 + 2 * PaddingSize.
+
 % get_valid_moves_bfs(+Piece, +MaxMoves, +Player-Board, +Queue, +Visited, -ListMoves)
 % returns the list of valid moves for a piece using bfs
 
@@ -153,11 +162,13 @@ filter_empty([_ | T], Board, Result):-
 get_valid_moves_bfs((Xi, Yi), 4, Player-Board-1, ListMoves):-   % advanced rules on
     !,
     % if is golden square, MaxMoves is Piece + 1, else MaxMoves is Piece
-    get_valid_moves_bfs_square(4, 4, Player-Board, [(Xi, Yi, 0)], [(Xi,Yi)], ListMoves).
+    (golden_square(Xi, Yi) -> MaxMoves is 5; MaxMoves is 4),
+    get_valid_moves_bfs_square(MaxMoves, 4, Player-Board, [(Xi, Yi, 0)], [(Xi,Yi)], ListMoves).
 
-get_valid_moves_bfs((Xi, Yi), Piece, Player-Board-_, ListMoves):-   % advanced rules on
+get_valid_moves_bfs((Xi, Yi), Piece, Player-Board-AdvRules, ListMoves):-   % advanced rules on
     % if AdvRules = 1 and golden square, MaxMoves is Piece + 1, else MaxMoves is Piece
-    get_valid_moves_bfs(Piece, Piece, Player-Board, [(Xi, Yi, 0)], [(Xi,Yi)], ListMoves).
+    ((AdvRules = 1, golden_square(Xi, Yi)) -> MaxMoves is Piece + 1; MaxMoves is Piece),
+    get_valid_moves_bfs(MaxMoves, Piece, Player-Board, [(Xi, Yi, 0)], [(Xi,Yi)], ListMoves).
 
 get_valid_moves_bfs(_, _, _, [], _, []).
 get_valid_moves_bfs(MaxMoves, _, _, [(_,_,MaxMoves) | _], _, []):-!. % q.front()'s distance has reached max, so stop

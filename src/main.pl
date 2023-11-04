@@ -48,7 +48,7 @@ main_menu_option(4):-
 play_game(RedLevel-GreenLevel):-
     select_advanced_rules(AdvRules),
     select_padding(PaddingSize),
-    asserta(padding(PaddingSize)),
+    asserta((padding(PaddingSize):-!)),
     initial_state(PaddingSize, Board),
     clear_screen,
 
@@ -56,7 +56,9 @@ play_game(RedLevel-GreenLevel):-
     BoardMaxSize is PaddingSize * 4 + NormalSize,
     display_game(Board-BoardMaxSize),
     game_cycle(r-Board-AdvRules, RedLevel-GreenLevel, BoardMaxSize).
-
+play_game(_):-
+    retractall(padding(_)),
+    !, fail.
 % choose_move(+Board, +Player, +Level, -Move)
 % IO routine to choose a move
 choose_move(Board-_, Player, 0, (Xi, Yi, Xf, Yf)):-   % human
