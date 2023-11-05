@@ -26,7 +26,7 @@ print_n(N, String):-
     for(_, 1, N), param(String) do write(String).
 
 % print_empty_squares(+Number)
-% Prints Number empty squares
+% Prints Number empty squares. Takes into account difference between even and odd lines.
 print_empty_squares(LineNr, Number):-
     1 is LineNr mod 2,  % if odd line, add 2 spaces at the beginning
     !,
@@ -48,10 +48,12 @@ existent(Line, Index, Offset):-
 
 % get_second_symbol(+AuxLine, +Index, +Offset1, +Offset2, +Existent, -SecondSymbol)
 % Gets the second symbol of the line, given the existent symbol
+
+% SecondSymbol is Existent if symbols at offset exist
 get_second_symbol(AuxLine, Index, Offset1, Offset2, Existent, Existent):- % dynamic SecondSymbol
     (existent(AuxLine, Index, Offset1); existent(AuxLine, Index, Offset2)),
     !.
-
+% SecondSymbol is horizontal if symbols at offset don't exist
 get_second_symbol(_, _, _, _, _, NonExistent):-
     horizontal(NonExistent).
 
@@ -99,8 +101,8 @@ write_separators_line(LineSize, LineNr, InitialIndex, AuxLine, FirstCorner, Last
 % display_game(+Board-+MaxSize)
 % Displays the game board
 display_game(Board-MaxSize) :-
-    write_board_upper_part(1, [ [] | Board ]),
-    write_column_numbers(MaxSize).
+    write_board_upper_part(1, [ [] | Board ]),  % writes the board (upper and lower parts)
+    write_column_numbers(MaxSize).  % writes the column numbers (for odd and even lines)
 
 % write_column_numbers(+Size)
 % Writes the column numbers
@@ -123,6 +125,7 @@ write_column_numbers(Size):-
 
 % write_board_upper_part(+LineNr, +Board)
 % Writes the upper part of the board
+% When LineNr gets to 4 (half of the board), it passes execution to write the lower part of the board
 write_board_upper_part(LineNr, [AuxLine, Line | OtherLines]) :-
     filter_invalid(Line, CleanLine, MinusOneCount),
 
@@ -185,6 +188,8 @@ write_board_lower_part(LineNr, [Line, AuxLine | OtherLines]):-
 
 % filter_invalid(+Line, -NewLine, -InvalidsNumberEachSide)
 % Filters the invalid values from the line
+% NewLine is the line without the invalid values
+% InvalidsNumberEachSide is the number of invalid values on each side
 filter_invalid(Line, ResultLine, MinusOneCount):-
     filter_invalid_first(Line, NewLine, MinusOneCount, 0), % remove the first -1's and count them
     filter_invalid_last(NewLine, ResultLine).       % get the values before -1's appear again
@@ -206,15 +211,16 @@ filter_invalid_last([H | T], [H | Rest]):-
     filter_invalid_last(T, Rest).
 
 % write_line(+Line)
-% Writes the line
-write_line(Line) :-
+% Writes the middle part of the line
+% Includes vertical separators
+write_line(Line):-
     vertical(VerticalSeparator),
     write_line(Line, VerticalSeparator).
 
 % write_line(+Line, +VerticalSeparator)
-% Writes a line of vertical separators
-write_line([], VerticalSeparator) :- write(VerticalSeparator), nl.
-write_line([Hexagon | Line], VerticalSeparator) :-
+% Writes a line with vertical separators
+write_line([], VerticalSeparator):- write(VerticalSeparator), nl.
+write_line([Hexagon | Line], VerticalSeparator):-
     translate(Hexagon, Piece),
     write(VerticalSeparator),
     write(' '),
@@ -241,14 +247,14 @@ up_corner(Symbol)    :- char_code(Symbol, 9524).
 
 % translate(+CellPiece, -WritableSymbol)
 translate(0, ' ').
-translate(r-1, X) :- char_code(X,  9675).
-translate(r-3, X) :- char_code(X,  9651).
-translate(r-4, X) :- char_code(X,  9633).
-translate(r-5, X) :- char_code(X, 11040).
+translate(r-1, X):- char_code(X,  9675).
+translate(r-3, X):- char_code(X,  9651).
+translate(r-4, X):- char_code(X,  9633).
+translate(r-5, X):- char_code(X, 11040).
 
-translate(g-1, X) :- char_code(X,  9679).
-translate(g-3, X) :- char_code(X,  9650).
-translate(g-4, X) :- char_code(X,  9632).
-translate(g-5, X) :- char_code(X, 11039).
+translate(g-1, X):- char_code(X,  9679).
+translate(g-3, X):- char_code(X,  9650).
+translate(g-4, X):- char_code(X,  9632).
+translate(g-5, X):- char_code(X, 11039).
 
 %%%%%%%%%%%%

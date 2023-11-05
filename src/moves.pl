@@ -8,8 +8,8 @@
 :- ensure_loaded(library(lists)).
 :- ensure_loaded(library(random)).
 
-% valid_moves(+Board, +Player, -ListOfMoves)
-% returns the list of valid moves for the player
+% valid_moves(+GameState, +Player, -ListOfMoves)
+% returns the list of valid moves for the player given
 valid_moves(Board-AdvRules, Player, ListOfMoves):-
     findall((Xi,Yi,Xf,Yf), (
         valid_piece(Board, Xi, Yi, Player-Piece),
@@ -17,9 +17,9 @@ valid_moves(Board-AdvRules, Player, ListOfMoves):-
         member((Xf,Yf), Moves)
     ), ListOfMoves).
 
-% move(+Board, +Player-AttackerPiece, ?Xf-Yf, -NewGameState)
-% returns the new game state after playing the designated move, if the move is valid
-move(Player-Board-AdvRules, (Xi, Yi, Xf, Yf), NP-NB):-  % the piece to move should already be validated
+% move(+GameState, +Move, -NewGameState)
+% checks if given move is valid and executes it, returning the new game state
+move(Player-Board-AdvRules, (Xi, Yi, Xf, Yf), NP-NB):-
     other_player(Player, NP),
     valid_piece(Board, Xi, Yi, Player-AttackerPiece),
     get_valid_moves_bfs((Xi,Yi), AttackerPiece, Player-Board-AdvRules, Moves),
@@ -28,7 +28,7 @@ move(Player-Board-AdvRules, (Xi, Yi, Xf, Yf), NP-NB):-  % the piece to move shou
     get_resulting_piece(Player-AttackerPiece, Value, ResultingPiece),
     execute_move(Board, (Xi, Yi, Xf, Yf), ResultingPiece, NB).
 
-% execute_move(+Board, +Move, -NewBoard)
+% execute_move(+Board, +Move, +NewValue, -NewBoard)
 % returns the new board after executing the move
 execute_move(Board, (Xi, Yi, Xf, Yf), ResultingPiece, NB):-
     replace_matrix_value(Board, Xi, Yi, 0, IntermediaryBoard),
@@ -274,7 +274,7 @@ evaluate_moves(Board-AdvRules, Player, [(Xi, Yi, Xf, Yf) | RestMoves], [Value | 
     evaluate_moves(Board-AdvRules, Player, RestMoves, RestValues).
 
 % value(+Board, +Player, -Value)
-% returns the value of the board for the player
+% returns the value of the board for the given player
 value(Board, Player, Value):-
     value(Board, Player, 1, 1, 0, Value).
 

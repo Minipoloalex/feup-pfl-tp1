@@ -115,7 +115,7 @@ As the user inputs the first position (row and column), we check if it is a vali
 
 Executing the move itself is simply changing the value of the starting position to 0 (empty), and the value of the ending position to the resulting piece, which is not necessarily equal to the piece moved.
 
-The move predicate also takes into account whether or not advanced rules are being used, passing that information into the breadth-first search algorithm for moving a piece.
+The move predicate also takes into account whether or not advanced rules are being used, passing that information into the breadth-first search algorithm for obtaining a piece's possible moves.
 
 ### 4.4 List of Valid Moves
 
@@ -127,7 +127,7 @@ This predicate is used by both computers to generate a list of all possible move
 
 ### 4.5 End of Game
 
-The game ends when one of the players wins. This is checked by the `game_over` predicate, which checks if the pentagon of the current player is captured, or if the current player has two pieces on the golden squares and the other player cannot remove them on his turn.
+The game ends when one of the players wins. This is checked by the `game_over` predicate, which verifies if the pentagon of the current player is captured, or if the current player has two pieces on the golden squares and the other player cannot remove them on his turn.
 
 To check if a player has two pieces on the golden squares, we use the `win_by_golden` predicate, which checks if the current player has two pieces on the golden squares.
 
@@ -141,7 +141,7 @@ To evaluate a board we evaluate all triples (Piece, Row, Col) of the board. The 
 
 To implement a greedy strategy, we have the following evaluation rules:
 
-- If the piece is a pentagon, it is worth a 1000 points, independently of its location in the board. It is worth so much because it is the most important piece in the game and not having it means you lose immediately.
+- If the piece is a pentagon, it is worth 1000 points, independently of its location in the board. It is worth so much because it is the most important piece in the game and not having it means you lose immediately.
 - If the piece is on a golden square, it is worth 200 points. This makes the computer greedily want to place pieces in the golden squares, promoting a more aggressive playstyle oriented towards winning by placing pieces on both golden squares.
 - If none of the conditions above are met, then the evaluation is done by calculating how far the piece is from the center of the board and how much squares a piece can move in a turn. The closer a piece is to the center of the board, the more points it is worth. The more squares a piece can move in a turn, the more points it is worth. This is calculated this way to make the computer want to move pieces towards the center of the board, because it is a more strategic position since it is closer to the golden squares and the enemy pieces.
 

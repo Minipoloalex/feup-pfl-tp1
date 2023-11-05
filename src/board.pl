@@ -41,7 +41,7 @@ get_pieces(_, _, []).
 % get_line(+LineNr, +PaddingSize, -Line)
 % Gets a line of the board (generates it)
 get_line(LineNr, PaddingSize, Line):-
-    (LineNr =:= 1; LineNr =:= 7),   % There are 7 lines
+    (LineNr =:= 1; LineNr =:= 7),   % Lines 1 and 7 are special cases
     !,
     minus_ones_each_side(7, PaddingSize, NumberMinusOnes),
     replicate(NumberMinusOnes, -1, MinusOnes),
@@ -88,4 +88,4 @@ get_lines(LineNr, PaddingSize, [Line | RecRes]):-
 % Gets the initial state of the game
 initial_state(PaddingSize, GameState):-
     PaddingSize >= 0,
-    get_lines(PaddingSize, GameState).
+    get_lines(PaddingSize, GameState).  % build the board
