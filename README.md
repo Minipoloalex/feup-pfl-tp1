@@ -33,6 +33,8 @@ Attacks from different pieces have 3 possible outcomes:
 
 Here we present in text the interactions between all the pieces in relation to how they can attack each other, and what outcomes arise from such attacks.
 
+<p style="page-break-after: always;">&nbsp;</p>
+
 For clarification, the rows represent the attacking piece, and the columns represent the attacked piece.
 
 | Attacking piece |     Circle     |    Triangle    |     Square     | Pentagon |
@@ -75,16 +77,15 @@ Invalid positions are represented as -1, and they exist to facilitate the correl
 Examples of pieces:
 
 - r-1 represents a circle (1) from the red player (r)
-- g-3 represents a triangle (3) from the green player
-
+- g-3 represents a triangle (3) from the green player (g)
 
 An example of the Prolog internal representation of a game state is presented here. The board representation is shown after.
 
-```prolog
-GameState = r-Board-1.  # red player, advanced rules on
+```
+GameState = r-Board-1.  % red player, advanced rules on
 ```
 This is the internal representation of the board in the starting position.
-```prolog
+```
 [
     [-1,-1,-1,-1,0,0,-1,-1,-1,-1],
     [-1,r-1,0,r-1,0,0,0,g-1,0,g-1,-1],
@@ -95,6 +96,8 @@ This is the internal representation of the board in the starting position.
     [-1,-1,-1,-1,0,0,-1,-1,-1,-1]
 ]
 ```
+
+<p style="page-break-after: always;">&nbsp;</p>
 
 Here we have an intermediate board:
 ```
@@ -167,6 +170,8 @@ To check if a player has two pieces on the golden squares, we use the `win_by_go
 
 To check if a player won by capturing the other player's pentagon, we use the `win_by_elimination` predicate, which checks if the pentagon of the other player is not on the board.
 
+<p style="page-break-after: always;">&nbsp;</p>
+
 ### 4.6 Game State Evaluation
 
 The evaluation of the game state is done by the `value` predicate and it is used by the computer to decide which move to make.
@@ -192,6 +197,8 @@ The user can have a hard time selecting pieces and moves, since the labels are n
 These could be improved to facilitate the selection of moves. A possible solution would be to insert the column and row numbers inside each cell.
 
 Concluding, the game is completely functional and the hard computer is a worthy opponent.
+
+<p style="page-break-after: always;">&nbsp;</p>
 
 ## Bibliography
 
