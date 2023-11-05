@@ -4,12 +4,10 @@ The game is called `Tactigon` and it can be found and explored in [tactigongame.
 
 ## 1. Group Tactigon_5
 
-<!--TODO: add contribution percentages -->
-
 |               Name                |  Number   | Contribution (%) |
 | :-------------------------------: | :-------: | :--------------: |
-|    Félix Marcial Alves Martins    | 202108837 |  Prolog expert   |
-| Marco Filipe Gonçalves Vilas Boas | 202108774 |  Prolog expert   |
+|    Félix Marcial Alves Martins    | 202108837 |  55   |
+| Marco Filipe Gonçalves Vilas Boas | 202108774 |  45   |
 
 ## 2. Installation and execution
 
@@ -70,7 +68,8 @@ The game has an optional set of advanced rules. We implement this giving the opt
 
 ### 4.1 Internal Game State Representation
 
-In our project, the game is represented by a board, the player whose turn it is to play and whether or not advanced rules are being used. The player is either 'r' or 'g', which represents red (player 1) or green (player 2), respectively. The board is represented by a list of lists, where each list represents a row of the board. Each element of a row is either an invalid position, an empty space or a piece from a certain player.
+In our project, the game is represented by a board, the player whose turn it is to play and whether or not advanced rules are being used. The game state is defined by `GameState = Player-Board-AdvRules`.
+The player is either 'r' or 'g', which represents red (player 1) or green (player 2), respectively. `AdvRules` is 1 if advanced rules are being used, and is different than 1 if not. The board is represented by a list of lists, where each list represents a row of the board. Each element of a row is either an invalid position, an empty space or a piece from a certain player.
 
 Invalid positions are represented as -1, and they exist to facilitate the correlation between the user input (row X and column Y) to a certain value from the board. Empty spaces are represented by 0, and pieces are represented by the player's color and the piece's number of sides, which is the number of spaces it can move at a time.
 Examples of pieces:
@@ -78,8 +77,13 @@ Examples of pieces:
 - r-1 represents a circle (1) from the red player (r)
 - g-3 represents a triangle (3) from the green player
 
-This is the internal representation of the board in the starting position.
 
+An example of the Prolog internal representation of a game state is presented here. The board representation is shown after.
+
+```prolog
+GameState = r-Board-1.  # red player, advanced rules on
+```
+This is the internal representation of the board in the starting position.
 ```prolog
 [
     [-1,-1,-1,-1,0,0,-1,-1,-1,-1],
@@ -91,6 +95,36 @@ This is the internal representation of the board in the starting position.
     [-1,-1,-1,-1,0,0,-1,-1,-1,-1]
 ]
 ```
+
+Here we have an intermediate board:
+```
+[
+    [-1,-1,-1,-1,r-3,0,-1,-1,-1,-1],
+    [-1,0,0,0,0,r-1,0,0,0,g-1,-1],
+    [0,r-4,0,0,0,0,0,g-3,g-4,0],
+    [r-1,r-3,r-5,r-4,0,0,0,g-4,g-5,g-3,g-1],
+    [0,r-4,0,0,g-3,0,0,0,g-4,0],
+    [-1,r-1,0,r-1,0,g-1,0,0,0,0,-1],
+    [-1,-1,-1,-1,0,0,-1,-1,-1,-1]
+]
+```
+Which corresponds to the board in this screenshot:
+![Alt text](images/intermediate.png)
+
+And here is an example of a board in the end of the game, where player 2 has won by placing a piece on both golden squares.
+```
+[
+    [-1,-1,-1,-1,0,0,-1,-1,-1,-1],
+    [-1,0,0,0,0,g-3,0,0,0,g-1,-1],
+    [r-1,0,0,0,0,0,0,0,g-4,0],
+    [0,0,r-5,0,0,0,0,0,g-5,0,g-1],
+    [0,r-3,0,0,0,0,0,0,0,0],
+    [-1,r-1,0,r-1,0,g-1,0,0,0,0,-1],
+    [-1,-1,-1,-1,0,0,-1,-1,-1,-1]
+]
+```
+That corresponds to the following screenshot:
+![Alt text](images/final.png)
 
 ### 4.2 Game State Visualization
 
@@ -156,6 +190,8 @@ Through testing we can broadly describe that the hard computer tries to go for t
 
 The user can have a hard time selecting pieces and moves, since the labels are not very user-friendly.
 These could be improved to facilitate the selection of moves. A possible solution would be to insert the column and row numbers inside each cell.
+
+Concluding, the game is completely functional and the hard computer is a worthy opponent.
 
 ## Bibliography
 
